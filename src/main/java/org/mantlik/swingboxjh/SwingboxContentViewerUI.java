@@ -28,7 +28,6 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
@@ -53,7 +52,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     
     private BrowserPane html;
     private JViewport vp;
-    private HyperlinkListener hyperlinkListener;
+    private HelpBrowserHyperlinkHandler hyperlinkListener;
     
     public static ComponentUI createUI(JComponent x) {
         debug("createUI");
@@ -91,6 +90,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
 	 * add any listeners here
 	 */
         hyperlinkListener = new HelpBrowserHyperlinkHandler(theViewer);
+        html.addMouseListener(hyperlinkListener.getMouseAdapter());
         html.addHyperlinkListener(hyperlinkListener);
 
 	// if the model has a current URL then set it
@@ -124,6 +124,8 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
 	 * remove all html listeners here - if we add any
 	 */
         html.removeHyperlinkListener(hyperlinkListener);
+        html.removeMouseListener(hyperlinkListener.getMouseAdapter());
+        
         TextHelpModel model = viewer.getModel();
         if (model != null) {
             model.removeHelpModelListener(this);
