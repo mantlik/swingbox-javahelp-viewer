@@ -523,18 +523,25 @@ public class BrowserPane extends JEditorPane
             setDocument(doc);
 
             final String reference = newPage.getRef();
-            if (reference != null)
-            {
                 // Have to scroll after painted.
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        scrollToReference(reference);
+                        Rectangle top = new Rectangle(0,0,1,1); // top of pane
+                        Rectangle bottom = new Rectangle(0,getHeight()-1, 1, 1);
+                        if (reference != null) {
+                            // scroll down and back to reference to get reference 
+                            // the topmost item
+                            scrollRectToVisible(bottom);
+                            scrollToReference(reference);
+                        } else {
+                            // scroll to the top of the new page
+                            scrollRectToVisible(top);
+                        }
                     }
                 });
-            }
 
             done = true;
 
