@@ -173,8 +173,13 @@ public class BlockReplacedBoxView extends BlockBoxView
         tmp = elementAttributes.get(Constants.ELEMENT_A_ATTRIBUTE_TITLE);
         if (tmp != null && !"".equals(tmp))
             val = val + "<i>" + tmp + "</i><br>";
+        if (val.equals("")) {
+            if (alt != null && ! "".equals(alt)) {
+                val = val + "<b>" + alt + "</b><br>";
+            }
+        }
         tmp = elementAttributes.get(Constants.ELEMENT_A_ATTRIBUTE_HREF);
-        if (tmp != null && !"".equals(tmp)) val = val + tmp;
+        if (tmp != null && !"".equals(tmp) && "".equals(val)) val = val + tmp;
 
         return "".equals(val) ? null : "<html>" + val + "</html>";
     }
