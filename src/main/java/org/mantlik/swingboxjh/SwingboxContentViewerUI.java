@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     
     private static Dimension PREF_SIZE = new Dimension(200, 300);
     private static Dimension MIN_SIZE = new Dimension(80, 80);
-    private static final HighlightPainter HIGHLIGHT_PAINTER = new DefaultHighlightPainter (null);
+    private static final HighlightPainter HIGHLIGHT_PAINTER = new DefaultHighlightPainter (Color.ORANGE);
     
     private BrowserPane html;
     private JViewport vp;
@@ -82,7 +83,10 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         
 	html = new BrowserPane();
         html.getAccessibleContext().setAccessibleName(HelpUtilities.getString(HelpUtilities.getLocale(html), "access.contentViewer"));
-	if (debug) {
+        Rectangle bounds = html.getBounds();
+        bounds.setSize(c.getWidth(), c.getHeight());
+        html.setBounds(bounds);
+        if (debug) {
 	    //html.setDebug(true);
 	}
 	/**

@@ -12,8 +12,6 @@ import javax.help.JHelp;
 import javax.swing.JFrame;
 import org.openide.modules.ModuleInstall;
 import org.openide.windows.WindowManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Manages a module's lifecycle. Remember that an installer is optional and
