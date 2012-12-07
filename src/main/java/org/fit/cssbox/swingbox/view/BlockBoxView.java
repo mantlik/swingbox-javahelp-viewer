@@ -96,6 +96,11 @@ public class BlockBoxView extends ElementBoxView
             super.paint(g, tmpRect);
 
         }
+        else
+        {
+            tmpRect = toRect(a);
+            super.paint(g, tmpRect);
+        }
     }
 
     @Override
