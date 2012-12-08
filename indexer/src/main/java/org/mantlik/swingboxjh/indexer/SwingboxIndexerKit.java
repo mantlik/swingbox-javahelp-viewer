@@ -26,14 +26,16 @@
 package org.mantlik.swingboxjh.indexer;
 
 import com.sun.java.help.search.DefaultIndexerKit;
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.help.search.ConfigFile;
 import javax.help.search.IndexBuilder;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.fit.cssbox.swingbox.BrowserPane;
 import org.fit.cssbox.swingbox.SwingBoxEditorKit;
 
 /**
@@ -54,14 +56,16 @@ public class SwingboxIndexerKit extends DefaultIndexerKit {
 
     @Override
     public void parse(Reader reader, String file, boolean bln, IndexBuilder ib, ConfigFile cf) throws IOException {
-        SwingBoxEditorKit editorKit = new SwingBoxEditorKit();
-        Document document = editorKit.createDefaultDocument();
-        try {
-            editorKit.read(reader, document, 0);
-        } catch (BadLocationException ex) {
-            Logger.getLogger(SwingboxIndexerKit.class.getName()).log(Level.SEVERE, null, ex);
+        BrowserPane pane = new BrowserPane();
+        SwingBoxEditorKit kit = (SwingBoxEditorKit) pane.getEditorKit();
+        Document document = kit.createDefaultDocument();
+        URL url = new File(file).toURI().toURL();
+        if (document.getProperty(Document.StreamDescriptionProperty) == null)
+        {
+            document.putProperty(Document.StreamDescriptionProperty, url);
         }
         try {
+            kit.read(reader, document, 0);
             String text = document.getText(0, document.getLength());
             this.builder = ib;
             this.config = cf;
