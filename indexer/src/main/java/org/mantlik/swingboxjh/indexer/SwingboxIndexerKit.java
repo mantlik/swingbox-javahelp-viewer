@@ -35,7 +35,9 @@ import java.util.logging.Logger;
 import javax.help.search.ConfigFile;
 import javax.help.search.IndexBuilder;
 import javax.swing.text.Document;
+import org.fit.cssbox.layout.ElementBox;
 import org.fit.cssbox.swingbox.BrowserPane;
+import org.fit.cssbox.swingbox.SwingBoxDocument;
 import org.fit.cssbox.swingbox.SwingBoxEditorKit;
 
 /**
@@ -57,8 +59,9 @@ public class SwingboxIndexerKit extends DefaultIndexerKit {
     @Override
     public void parse(Reader reader, String file, boolean bln, IndexBuilder ib, ConfigFile cf) throws IOException {
         BrowserPane pane = new BrowserPane();
+        pane.setBounds(0,0,pane.getMaximumSize().width, pane.getMaximumSize().height);
         SwingBoxEditorKit kit = (SwingBoxEditorKit) pane.getEditorKit();
-        Document document = kit.createDefaultDocument();
+        SwingBoxDocument document = (SwingBoxDocument)kit.createDefaultDocument();
         URL url = new File(file).toURI().toURL();
         if (document.getProperty(Document.StreamDescriptionProperty) == null)
         {
