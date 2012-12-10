@@ -32,9 +32,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.help.search.ConfigFile;
 import javax.help.search.IndexBuilder;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.fit.cssbox.swingbox.SwingBoxEditorKit;
+import org.apache.commons.io.input.ReaderInputStream;
+import org.fit.cssbox.demo.DOMSource;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -54,21 +57,21 @@ public class SwingboxIndexerKit extends DefaultIndexerKit {
 
     @Override
     public void parse(Reader reader, String file, boolean bln, IndexBuilder ib, ConfigFile cf) throws IOException {
-        SwingBoxEditorKit editorKit = new SwingBoxEditorKit();
-        Document document = editorKit.createDefaultDocument();
+        DOMSource parser = new DOMSource(new ReaderInputStream(reader));
         try {
-            editorKit.read(reader, document, 0);
-        } catch (BadLocationException ex) {
-            Logger.getLogger(SwingboxIndexerKit.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            String text = document.getText(0, document.getLength());
+            Document document = parser.parse();
+            String text = parseText(document);
             this.builder = ib;
             this.config = cf;
             this.file = file;
             documentStarted = false;
             super.parseIntoTokens(text, 0);
-            storeTitle(document.getProperty(Document.TitleProperty).toString());
+            String title = document.getLocalName();
+            NodeList list = document.getElementsByTagName("title");
+            if (list.getLength() > 0) {
+                title = list.item(0).getTextContent();
+            }
+            storeTitle(title);
             endStoreDocument();
         } catch (Exception ex) {
             Logger.getLogger(SwingboxIndexerKit.class.getName()).log(Level.SEVERE, null, ex);
@@ -79,5 +82,18 @@ public class SwingboxIndexerKit extends DefaultIndexerKit {
     public int parseIntoTokens(String string, int i) {
         return -1;
     }
-    
+
+    private String parseText(Node root) {
+        String text = "";
+        NodeList children = root.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if (node instanceof Text) {
+                text += ((Text) node).getWholeText();
+            } else {
+                text += parseText(root.getChildNodes().item(i));
+            }
+        }
+        return text;
+    }
 }
