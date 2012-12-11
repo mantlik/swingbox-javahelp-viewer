@@ -254,16 +254,16 @@
                     <projectName>swingbox-javahelp-viewer</projectName>
                     <failsOnError>false</failsOnError>
                     <serverId>code.google.com</serverId>
-                    <!--<uploads>
+                    <uploads>
                         <upload>
-                            <file>${project.build.directory}/Documentation-${project.version}-build-${buildNumber}.pdf</file>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-build-${buildNumber}.nbm</file>
                             <labels>
-                                <label>Type-Docs</label>
+                                <label>Type-Package</label>
                                 <label>Featured</label>
                             </labels>
-                            <summary>User's guide in PDF format</summary>
+                            <summary>${project.artifactId} Netbeans module</summary>
                         </upload>
-                    </uploads>-->
+                    </uploads>
                 </configuration>
             </plugin>
         </plugins>
