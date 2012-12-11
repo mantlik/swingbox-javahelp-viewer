@@ -235,6 +235,7 @@
                     <releaseVersion>1.0</releaseVersion>
                     <tagNameFormat>RELEASE_@{project.version}</tagNameFormat>
                     <remoteTagging>false</remoteTagging>
+                    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
 
