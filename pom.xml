@@ -232,7 +232,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <commitByProject>false</commitByProject>
                     <developmentVersion>1.1-SNAPSHOT</developmentVersion>
-                    <releaseVersion>1.0</releaseVersion>
+                    <releaseVersion>1.0.1</releaseVersion>
                     <tagNameFormat>RELEASE_@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
