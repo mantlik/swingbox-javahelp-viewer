@@ -50,6 +50,7 @@ import javax.help.event.TextHelpModelListener;
 import javax.help.plaf.HelpContentViewerUI;
 import javax.help.plaf.basic.BasicNativeContentViewerUI;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.border.BevelBorder;
@@ -77,7 +78,8 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     private static Dimension PREF_SIZE = new Dimension(200, 300);
     private static Dimension MIN_SIZE = new Dimension(80, 80);
     private static final HighlightPainter HIGHLIGHT_PAINTER = new DefaultHighlightPainter(Color.ORANGE);
-    private BrowserPane html;
+    private static final String A_XERCES_CLASS_NAME = "org.apache.xerces.parsers.DOMParser";
+    private JEditorPane html;
     private JViewport vp;
     private HelpBrowserHyperlinkHandler hyperlinkListener;
     private String textDocument;
@@ -107,8 +109,20 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             // listen to highlight changes...
             model.addTextHelpModelListener(this);
         }
+        try {
+            JoinClassLoader loader = new JoinClassLoader(getClass().getClassLoader().getParent(),
+                    getClass().getClassLoader(), ((Class) Thread.currentThread().getContextClassLoader()
+                    .loadClass(A_XERCES_CLASS_NAME)).getClassLoader());
+            Class cl = loader.forceLoader(BrowserPane.class.getName());
+            html = (JEditorPane) cl.newInstance();
+        } catch (InstantiationException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalAccessException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ClassNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
 
-        html = new BrowserPane();
         html.getAccessibleContext().setAccessibleName(HelpUtilities.getString(HelpUtilities.getLocale(html), "access.contentViewer"));
         Rectangle bounds = html.getBounds();
         bounds.setSize(c.getWidth(), c.getHeight());
@@ -198,7 +212,6 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
          * code would be needed here remove all the highlights before
          * the new page is displayed
          */
- 
         try {
             setPage(url);
         } catch (IOException ex) {
@@ -221,7 +234,6 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
          * if we were doing any highlighting the highlights would need
          * to be removed here
          */
-
         HelpSet hs = model.getHelpSet();
         // for glossary - not set homeID page - glossary is not synchronized
         if (theViewer.getSynch()) {
@@ -301,10 +313,10 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
                 if (len <= 0) {
                     continue;
                 }
-                Integer[] indexes = findIndexes(textDocument.substring(highlight.getStartOffset(), 
+                Integer[] indexes = findIndexes(textDocument.substring(highlight.getStartOffset(),
                         highlight.getEndOffset()));
-                for (int i = 0 ; i < indexes.length; i++) {
-                    highlighter.addHighlight(indexes[i], indexes[i]+len, HIGHLIGHT_PAINTER);
+                for (int i = 0; i < indexes.length; i++) {
+                    highlighter.addHighlight(indexes[i], indexes[i] + len, HIGHLIGHT_PAINTER);
                 }
             } catch (BadLocationException ex) {
                 Exceptions.printStackTrace(ex);
@@ -340,7 +352,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             EditorKit kit = new HTMLEditorKit();
             HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
             doc.putProperty("IgnoreCharsetDirective", Boolean.TRUE);
-            Reader HTMLReader = new InputStreamReader(url.openConnection().getInputStream()); 
+            Reader HTMLReader = new InputStreamReader(url.openConnection().getInputStream());
             kit.read(HTMLReader, doc, 0);
             String text = doc.getText(0, doc.getLength());
             return text;
@@ -358,7 +370,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             if (pos >= 0 && pos < doc.length()) {
                 a.remove(new Integer(pos));
                 a.add(pos);
-                pos = pos+1;
+                pos = pos + 1;
             }
         }
         return a.toArray(new Integer[0]);
