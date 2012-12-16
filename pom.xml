@@ -38,7 +38,7 @@
     <distributionManagement>
         <repository>
             <id>releases</id>
-            <url>http://host.mantlik.cz/public/repositories/releases</url>
+            <url>http://host.mantlik.cz/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
