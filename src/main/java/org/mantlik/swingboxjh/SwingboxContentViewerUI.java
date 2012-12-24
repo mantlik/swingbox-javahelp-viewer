@@ -53,6 +53,7 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.BadLocationException;
@@ -153,6 +154,8 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         JScrollPane scroller = new JScrollPane();
         scroller.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.white,
                 Color.gray));
+        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         vp = scroller.getViewport();
         vp.add(html);
         vp.setBackingStoreEnabled(true);

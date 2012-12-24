@@ -106,7 +106,10 @@ public class BlockBoxView extends ElementBoxView
     @Override
     public boolean isVisible()
     {
-        return box.isVisible();
+        if (box != null) {
+            return box.isVisible();
+        }
+        return false;
     }
 
 }

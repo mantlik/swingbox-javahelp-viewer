@@ -68,7 +68,7 @@ public class ListItemBox extends BlockBox {
             TermURI urlstring = style.getValue(TermURI.class, "list-style-image");
             try {
                 URL url = DataURLHandler.createURL(urlstring.getBase(), urlstring.getValue());
-                image = new ReplacedImage(src, src.getVisualContext(), url);
+                image = new ReplacedImage(src, src.getVisualContext(), urlstring.getBase(), urlstring.getValue());
             } catch (MalformedURLException e) {
                 System.err.println("BackgroundImage: Warning: " + e.getMessage());
             }
