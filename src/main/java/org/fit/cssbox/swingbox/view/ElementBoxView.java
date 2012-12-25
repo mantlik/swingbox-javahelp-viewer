@@ -437,6 +437,9 @@ public class ElementBoxView extends CompositeView implements CSSBoxView
     @Override
     public void paint(Graphics graphics, Shape allocation)
     {
+        if (box == null) {
+            return;
+        }
         Graphics2D g = (Graphics2D) graphics;
         /*
          * alloc is a rectangle - intersection from parent with almost
