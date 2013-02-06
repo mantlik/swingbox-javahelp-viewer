@@ -6,22 +6,26 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ *  
  * SwingBox is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
- *
+ *  
  * You should have received a copy of the GNU Lesser General Public License
  * along with SwingBox. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  */
+
 package org.fit.cssbox.swingbox.view;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+
 import javax.swing.text.Element;
+
+import org.fit.cssbox.layout.ListItemBox;
 
 /**
  * @author Peter Bielik
@@ -40,11 +44,13 @@ public class ListItemBoxView extends BlockBoxView
     }
 
     @Override
-    public void paint(Graphics gr, Shape a) {
-        Graphics2D g = (Graphics2D) gr;
-        box.getVisualContext().updateGraphics(g);
-        box.drawBackground(g);
+    public void paint(Graphics g, Shape a)
+    {
         super.paint(g, a);
-        box.draw(g);
+        if (isVisible() && box instanceof ListItemBox)
+            ((ListItemBox) box).drawMarker((Graphics2D) g);
     }
+
+    
+    
 }
