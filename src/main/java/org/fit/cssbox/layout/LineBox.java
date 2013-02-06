@@ -209,6 +209,17 @@ public class LineBox
         }
     }
     
+    public void considerBoxProperties(ElementBox box)
+    {
+        VisualContext ctx = box.getVisualContext();
+        int a = ctx.getBaselineOffset();
+        int b = ctx.getFontHeight() - ctx.getBaselineOffset();
+        above = Math.max(above, a);
+        below = Math.max(below, b);
+
+        maxlineheight = Math.max(maxlineheight, box.getLineHeight());
+    }
+    
     /**
      * Aligns a new box and updates the line metrics. 
      * @param box the box to be placed on the line

@@ -281,7 +281,7 @@ public class BoxBrowser
         vals.add(infoTableData("AbsBounds", boundString(box.getAbsoluteBounds())));
         vals.add(infoTableData("Content", boundString(box.getContentBounds())));
         vals.add(infoTableData("Color", box.getVisualContext().getColor().toString()));
-        vals.add(infoTableData("Font name", box.getVisualContext().getFont().getFontName()));
+        vals.add(infoTableData("Font name", box.getVisualContext().getFont().getFontName() + " : " + box.getVisualContext().getFont().getName()));
         vals.add(infoTableData("Font size", box.getVisualContext().getFont().getSize() + "pt (" + CSSUnits.pixels(box.getVisualContext().getFont().getSize()) + "px)"));
         vals.add(infoTableData("Text decor", box.getVisualContext().getTextDecorationString()));
         vals.add(infoTableData("Min width", String.valueOf(box.getMinimalWidth())));
@@ -297,6 +297,8 @@ public class BoxBrowser
             vals.add(infoTableData("Padding", eb.getPadding().toString()));
             vals.add(infoTableData("Border", eb.getBorder().toString()));
             vals.add(infoTableData("LineH", String.valueOf(eb.getLineHeight()) + "px"));
+            vals.add(infoTableData("Position", eb.getPositionString()));
+            vals.add(infoTableData("Coords", eb.getCoords().toString()));
         }
 
         if (box instanceof Inline)
@@ -320,9 +322,7 @@ public class BoxBrowser
         {
             BlockBox eb = (BlockBox) box;
             vals.add(infoTableData("Content layout", (eb.containsBlocks() ? "blocks" : "inline")));
-            vals.add(infoTableData("Coords", eb.getCoords().toString()));
             vals.add(infoTableData("Float", eb.getFloatingString()));
-            vals.add(infoTableData("Position", eb.getPositionString()));
             vals.add(infoTableData("Overflow", eb.getOverflowString()));
             vals.add(infoTableData("Clear", eb.getClearingString()));
             vals.add(infoTableData("Reference", (eb.getAbsReference() == null) ? "- none -" : eb.getAbsReference().toString()));
