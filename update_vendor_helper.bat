@@ -9,8 +9,8 @@ call git svn rebase
 
 call git checkout master
 
-call git merge --no-ff -s subtree cssbox-vendor
-call git merge --no-ff -s subtree jstyleparser-vendor
-call git merge --no-ff -s subtree swingbox-vendor
+call git merge --no-ff -Xsubtree=src/main/java cssbox-vendor
+call git merge --no-ff -Xsubtree=src/main/java jstyleparser-vendor
+call git merge --no-ff -Xsubtree=src/main/java swingbox-vendor
 
 pause
