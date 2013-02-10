@@ -121,6 +121,11 @@ public class HTMLBoxFactory
             String mime = e.getAttribute("type").toLowerCase();
             String cb = e.getAttribute("codebase");
             String dataurl = e.getAttribute("data");
+            
+            if (mime.equals("") && cb.equals("") && dataurl.equals("")) {
+                return null;
+            }
+
             URL base = new URL(factory.getBaseURL(), cb);
             
             DocumentSource src = factory.createDocumentSource(base, dataurl);
