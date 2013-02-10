@@ -24,7 +24,6 @@ package org.mantlik.swingboxjh;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,10 +32,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Locale;
 import javax.help.HelpSet;
 import javax.help.HelpUtilities;
+import javax.help.InvalidHelpSetContextException;
 import javax.help.JHelpContentViewer;
 import javax.help.JHelpNavigator;
 import javax.help.Map;
@@ -82,12 +84,16 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     private static final String A_XERCES_CLASS_NAME = "org.apache.xerces.parsers.DOMParser";
     private JEditorPane html;
     private JViewport vp;
-    private HelpBrowserHyperlinkHandler hyperlinkListener;
+    private transient HelpBrowserHyperlinkHandler hyperlinkListener;
     private String textDocument;
 
     public static ComponentUI createUI(JComponent x) {
         debug("createUI");
-        return new BasicNativeContentViewerUI((JHelpContentViewer) x);
+        if (! (x instanceof JHelpContentViewer)) {
+            throw new ClassCastException("Invalid argument of type " + x.getClass().getName() + ". Expected JHelpContentViewer.");
+        } else {
+            return new BasicNativeContentViewerUI((JHelpContentViewer) x);
+        }
     }
 
     public SwingboxContentViewerUI(JHelpContentViewer b) {
@@ -97,7 +103,11 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     @Override
     public void installUI(JComponent c) {
         debug("installUI");
-        theViewer = (JHelpContentViewer) c;
+        if (! (c instanceof JHelpContentViewer)) {
+            throw new ClassCastException("Invalid argument of type " + c.getClass().getName() + ". Expected JHelpContentViewer.");
+        } else {
+            theViewer = (JHelpContentViewer) c;
+        }
         theViewer.setLayout(new BorderLayout());
 
         // listen to property changes...
@@ -110,19 +120,27 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             // listen to highlight changes...
             model.addTextHelpModelListener(this);
         }
-        try {
-            JoinClassLoader loader = new JoinClassLoader(getClass().getClassLoader().getParent(),
-                    getClass().getClassLoader(), ((Class) Thread.currentThread().getContextClassLoader()
-                    .loadClass(A_XERCES_CLASS_NAME)).getClassLoader());
-            Class cl = loader.forceLoader(BrowserPane.class.getName());
-            html = (JEditorPane) cl.newInstance();
-        } catch (InstantiationException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IllegalAccessException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ClassNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        AccessController.doPrivileged(
+                new PrivilegedAction<JoinClassLoader>() {
+                    @Override
+                    public JoinClassLoader run() {
+                        try {
+                            JoinClassLoader loader = new JoinClassLoader(getClass().getClassLoader().getParent(),
+                                    getClass().getClassLoader(), ((Class) Thread.currentThread().getContextClassLoader()
+                                    .loadClass(A_XERCES_CLASS_NAME)).getClassLoader());
+                            Class cl = loader.forceLoader(BrowserPane.class.getName());
+                            html = (JEditorPane) cl.newInstance();
+                            return loader;
+                        } catch (InstantiationException ex) {
+                            Exceptions.printStackTrace(ex);
+                        } catch (IllegalAccessException ex) {
+                            Exceptions.printStackTrace(ex);
+                        } catch (ClassNotFoundException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                        return null;
+                    }
+                });
 
         html.getAccessibleContext().setAccessibleName(HelpUtilities.getString(HelpUtilities.getLocale(html), "access.contentViewer"));
         Rectangle bounds = html.getBounds();
@@ -146,7 +164,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
                 try {
                     setPage(url);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    Exceptions.printStackTrace(ex);
                 }
             }
         }
@@ -165,7 +183,12 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     @Override
     public void uninstallUI(JComponent c) {
         debug("uninstallUI");
-        JHelpContentViewer viewer = (JHelpContentViewer) c;
+        JHelpContentViewer viewer = null;
+        if (! (c instanceof JHelpContentViewer)) {
+            throw new ClassCastException("Invalid argument of type " + c.getClass().getName() + ". Expected JHelpContentViewer.");
+        } else {
+            viewer = (JHelpContentViewer) c;
+        }
         viewer.removePropertyChangeListener(this);
         /**
          * html future additions
@@ -218,7 +241,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         try {
             setPage(url);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Exceptions.printStackTrace(ex);
         }
 
         debug("done with idChanged");
@@ -246,8 +269,10 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
                 String name = HelpUtilities.getString(locale, "history.homePage");
                 model.setCurrentID(homeID, name, (JHelpNavigator) null);
                 setPage(model.getCurrentURL());
-            } catch (Exception e) {
-                // ignore
+            } catch (InvalidHelpSetContextException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IOException e) {
+                Exceptions.printStackTrace(e);
             }
         }
         debug("rebuild-end");
@@ -273,7 +298,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
                 rebuild();
             } else if (changeName.equals("font")) {
                 debug("font changed");
-                Font newFont = (Font) event.getNewValue();
+                //Font newFont = (Font) event.getNewValue();
                 /**
                  * ~~
                  * Put font change handling code here
@@ -289,7 +314,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
                     //html..refresh();
                     html.setPage(html.getPage());
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    Exceptions.printStackTrace(ex);
                 }
             }
         }
@@ -360,6 +385,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             String text = doc.getText(0, doc.getLength());
             return text;
         } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
             return "";
         }
     }
@@ -371,11 +397,11 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         while (pos >= 0 && pos < doc.length()) {
             pos = doc.indexOf(text, pos);
             if (pos >= 0 && pos < doc.length()) {
-                a.remove(new Integer(pos));
+                a.remove(Integer.valueOf(pos));
                 a.add(pos);
                 pos = pos + 1;
             }
         }
-        return a.toArray(new Integer[0]);
+        return a.toArray(new Integer[a.size()]);
     }
 }
