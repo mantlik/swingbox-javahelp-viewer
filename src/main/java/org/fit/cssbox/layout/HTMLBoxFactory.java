@@ -19,6 +19,8 @@
  */
 package org.fit.cssbox.layout;
 
+import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.Declaration;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -33,6 +35,8 @@ import org.fit.cssbox.io.DefaultDOMSource;
 import org.fit.cssbox.io.DocumentSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -121,9 +125,44 @@ public class HTMLBoxFactory
             String mime = e.getAttribute("type").toLowerCase();
             String cb = e.getAttribute("codebase");
             String dataurl = e.getAttribute("data");
+            String theContent = "";
+            String text = "";
             
             if (mime.equals("") && cb.equals("") && dataurl.equals("")) {
-                return null;
+                // try to process Netbeans Javahelp object
+                NodeList params = e.getElementsByTagName("param");
+                for (int i=0; i<params.getLength(); i++) {
+                    NamedNodeMap attributes = params.item(i).getAttributes();
+                    if (attributes.getNamedItem("name") == null || attributes.getNamedItem("value") == null) {
+                        continue;
+                    }
+                    if (attributes.getNamedItem("name").getNodeValue().equals("content")) {
+                        theContent = attributes.getNamedItem("value").getNodeValue();
+                    } else if (attributes.getNamedItem("name").getNodeValue().equals("text")) {
+                        text = attributes.getNamedItem("value").getNodeValue();
+                    }
+                }
+                if ("".equals(text)) {
+                    text = theContent;
+                }
+                Element anchor = viewport.getFactory().createAnonymousElement(e.getOwnerDocument(), 
+                        "a", ElementBox.DISPLAY_INLINE.name());
+                anchor.setAttribute("href", theContent);
+                anchor.setAttribute("target", "_blank");
+                anchor.setTextContent(text.replaceAll("\\<.*?>",""));
+                ElementBox anbox = new InlineBox(anchor, (Graphics2D) parent.getGraphics().create(), parent.getVisualContext().create());
+                anbox.setViewport(viewport);
+                
+                Declaration cls = CSSFactory.getRuleFactory().createDeclaration();
+                cls.unlock();
+                cls.setProperty("color");
+                cls.add(CSSFactory.getTermFactory().createColor(0, 0, 255));
+                cls.setImportant(true);
+                style.push(cls);
+                
+                anbox.setStyle(style);
+                anbox.isblock = false;
+                return anbox;
             }
 
             URL base = new URL(factory.getBaseURL(), cb);
