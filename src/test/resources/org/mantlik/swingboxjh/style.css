@@ -1,0 +1,228 @@
+/*
+ * #%L
+ * swingbox-javahelp-viewer
+ * %%
+ * Copyright (C) 2012 - 2013 RNDr. Frantisek Mantlik <frantisek at mantlik.cz>
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as 
+ * published by the Free Software Foundation, either version 3 of the 
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public 
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+/*
+ * rave.css      08/13/2004
+ *
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
+ * Use is subject to license terms.
+ *
+ * Changes from NetBeans ide.css:
+ * Oct. 2003
+ * Got rid of <tr> and <td> definitions.
+ * Changed table definition and added <border> tag
+ * to improve appearance of tables in web browsers.
+ * Added <th> definition to make default text alignment left.
+ * 
+ * Added <dl>, <dt>, and <dd> definitions to be used instead
+ * of formatting tables for See Also lists. For example:
+ * <dl>
+ * <dt>See Also</dt>
+ * <dd>First Linked Element of List</dd>
+ * <dd>Second Linked Element of List</dd>
+ * </dl>
+ * 
+ * Added <ul> and <ol> definitions that support blue ball
+ * and blue square graphics for bullets. Definitions
+ * account for sublists and for subslists of sublists.
+ * 
+*/
+
+.literallayout {
+    background-color: #FFFFCC;     
+}
+
+.anchorref {
+    color: white;
+}
+
+pre {
+    background-color: #FFFFCC;     
+}
+
+img {
+    border-width: 0;
+    margin: 5;
+}
+
+body  {font-size: medium;
+       font-family: SansSerif, Arial, Helvetica, sans-serif;
+       margin-left: 5;
+       margin-right: 5;
+       color: black;
+       background-color: white}
+
+a {
+    text-decoration-line: none;
+}
+
+p  {font-size: medium;
+    margin-top: 5;
+    margin-bottom: 5}
+
+h1 { font-size: large;
+     font-weight: bold;
+     margin-top: 10;
+     margin-bottom: 5}
+
+
+h2 { font-size: large;
+     font-weight: bold;
+     margin-top: 10;
+     margin-bottom: 5}
+
+h3 { font-size: medium;
+     font-weight: bold;
+     margin-top: 10;
+     margin-bottom: 5}
+
+h4 { font-size: medium;
+     font-weight: bold;
+     margin-top: 10;
+     margin-bottom: 5}
+/* 
+ * Use the h6 tag for the term in a glossary popup
+ * topic. The term being defined is the heading for 
+ * the topic.
+*/
+h6 { font-size: small;
+     font-weight: bold;
+     margin-top: 0;
+     margin-bottom: 10}
+
+li {margin-top: 0;
+    margin-bottom: 5;
+    color: black;
+}
+
+li p{margin-top: 5;
+     margin-bottom: 0}
+
+/* Ordered lists */
+
+ul {
+    list-style-image:url(blue-ball-mid.gif);
+    margin-top: 5;
+    margin-bottom: 0;
+    margin-left: 16;
+    color: black;
+}
+
+ul li ul{list-style-image:url(blue-sqr-mid.gif)}
+
+ul ul{list-style-image:url(blue-sqr-mid.gif)}
+
+/* Numbered lists embedded in ordered lists */
+
+ul li ol{list-style-image:none;
+         list-style-type: decimal}
+
+ul li ol li ol{list-style-type: lower-alpha}
+
+ul li ol ol{list-style-type: lower-alpha}
+
+ul ol{list-style-image:none;
+      list-style-type: decimal}
+
+ul ol li ol{list-style-type: lower-alpha}
+
+ul ol ol{list-style-type: lower-alpha}
+
+/* Graphics for notes and warnings */
+ul.note {
+    margin-top: 5;
+    margin-bottom: 0;
+    margin-left: 16;
+}
+
+ul.warning {
+    margin-top: 5;
+    margin-bottom: 0;
+    margin-left: 16;
+}
+
+/* Numbered lists */
+
+ol {list-style-type: decimal;
+    margin-top: 5;
+    margin-bottom: 0;
+    margin-left: 22;
+}
+
+ol li ol{list-style-type: lower-alpha}
+
+ol ol{list-style-type: lower-alpha}
+
+/* Ordered lists embedded in Numbered lists */
+
+ol li ul {list-style-image:url(blue-ball-mid.gif)}
+
+ol li ul li ul {list-style-image:url(blue-sqr-mid.gif)}
+
+ol li ul ul {list-style-image:url(blue-sqr-mid.gif)}
+
+ol ul {list-style-image:url(blue-ball-mid.gif)}
+
+ol ul li ul {list-style-image:url(blue-sqr-mid.gif)}
+
+ol ul ul{list-style-image:url(blue-sqr-mid.gif)}
+
+dl {margin-left: 0;
+    margin-top: 10;
+    margin-bottom: 5}
+
+dt {font-size: small;
+    font-style: normal;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-indent: 0}
+
+dd {font-size: small;
+    font-style: normal;
+    font-weight: normal;
+    margin-top: 2;
+    margin-left: 25}
+
+table {
+    margin: 5;
+}
+
+td,th {
+    padding: 5;
+    margin: 0;
+}
+
+.navfooter table {
+    border-color: silver;
+    border-style: solid;
+    border-top-width: 1;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+}
+
+.navheader table {
+    border-width: 0;
+}
+
+small {font-size: x-small}
+

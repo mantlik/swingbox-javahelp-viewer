@@ -42,7 +42,7 @@ public class InheritedListsTest {
     
     private static BrowserPane pane;
 
-    @Test(timeOut=10000)
+    @Test//(timeOut=10000)
     public void testInheritedList() throws IOException, InterruptedException {
         URL testpage = getClass().getResource("process.html");
         pane.setPage(testpage);
