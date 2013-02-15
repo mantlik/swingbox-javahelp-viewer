@@ -358,6 +358,41 @@ public class DeclarationTransformer {
 	}
 
 	/**
+	 * Converts term into TermLength and stores values and types in maps
+	 * 
+	 * @param <T>
+	 *            CSSProperty
+	 * @param term
+	 *            Term to be parsed
+	 * @param propertyName
+	 *            How to store colorIdentificiton
+	 * @param lengthIdentification
+	 *            What to store under propertyName
+	 * @param properties
+	 *            Map to store property types
+	 * @param values
+	 *            Map to store property values
+	 * @return <code>true</code> in case of success, <code>false</code>
+	 *         otherwise
+	 */
+	protected <T extends CSSProperty> boolean genericTermLength(Term<?> term,
+			String propertyName, T lengthIdentification, boolean sanify,
+			Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+
+		if (term instanceof TermInteger && ((TermInteger) term).getUnit().equals(TermNumber.Unit.none)) { // convert to length with units of px
+                        TermLength tl = tf.createLength(((TermInteger) term).getValue(), TermNumber.Unit.px);
+			return genericTerm(TermLength.class, tl, propertyName, lengthIdentification, 
+                                sanify, properties, values);
+                } else if (term instanceof TermLength) {
+			return genericTerm(TermLength.class, term, propertyName, lengthIdentification, 
+                                sanify, properties, values);
+                }
+
+		return false;
+
+	}
+
+	/**
 	 * Check whether given declaration contains one term of given type. It is
 	 * able to check even whether is above zero for numeric values
 	 * 
@@ -501,7 +536,7 @@ public class DeclarationTransformer {
 
 		return genericTermIdent(type, d.get(0), ALLOW_INH, d.getProperty(),
 				properties)
-				|| genericTerm(TermLength.class, d.get(0), d.getProperty(),
+				|| genericTermLength(d.get(0), d.getProperty(),
 						lengthIdentification, sanify, properties, values);
 	}
 
@@ -515,7 +550,7 @@ public class DeclarationTransformer {
 
 		return genericTermIdent(type, d.get(0), ALLOW_INH, d.getProperty(),
 				properties)
-				|| genericTerm(TermLength.class, d.get(0), d.getProperty(),
+				|| genericTermLength(d.get(0), d.getProperty(),
 						lengthIdentification, sanify, properties, values)
 				|| genericTerm(TermPercent.class, d.get(0), d.getProperty(),
 						percentIdentification, sanify, properties, values);
