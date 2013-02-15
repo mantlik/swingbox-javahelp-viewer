@@ -246,6 +246,7 @@
                     <developmentVersion>1.2-SNAPSHOT</developmentVersion>
                     <releaseVersion>1.1</releaseVersion>
                     <tagNameFormat>RELEASE_@{project.version}</tagNameFormat>
+                    <scmCommentPrefix>Update Issue 6 </scmCommentPrefix>
                 </configuration>
             </plugin>
 
