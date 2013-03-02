@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CSSProperty;
+import cz.vutbr.web.css.CSSProperty.BorderRadius;
 import cz.vutbr.web.css.CSSProperty.GenericCSSPropertyProxy;
+import cz.vutbr.web.css.CSSProperty.Opacity;
 import cz.vutbr.web.css.Declaration;
 import cz.vutbr.web.css.SupportedCSS;
 import cz.vutbr.web.css.Term;
@@ -379,16 +381,20 @@ public class DeclarationTransformer {
 			String propertyName, T lengthIdentification, boolean sanify,
 			Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
 
-		if (term instanceof TermInteger && ((TermInteger) term).getUnit().equals(TermNumber.Unit.none)) { // convert to length with units of px
-                        TermLength tl = tf.createLength(((TermInteger) term).getValue(), TermNumber.Unit.px);
-			return genericTerm(TermLength.class, tl, propertyName, lengthIdentification, 
-                                sanify, properties, values);
-                } else if (term instanceof TermLength) {
-			return genericTerm(TermLength.class, term, propertyName, lengthIdentification, 
-                                sanify, properties, values);
-                }
+        if (term instanceof TermInteger  && ((TermInteger) term).getUnit().equals(TermNumber.Unit.none)) {
+            if (CSSFactory.getImplyPixelLength() || ((TermInteger) term).getValue() == 0) { //0 is always allowed with no units
+                // convert to length with units of px
+                TermLength tl = tf.createLength(((TermInteger) term).getValue(), TermNumber.Unit.px);
+                return genericTerm(TermLength.class, tl, propertyName, lengthIdentification, sanify, properties, values);
+            } else {
+                return false;
+            }
+        }
+        else if (term instanceof TermLength) { 
+            return genericTerm(TermLength.class, term, propertyName, lengthIdentification, sanify, properties, values); 
+        }
 
-		return false;
+        return false;
 
 	}
 
@@ -526,6 +532,21 @@ public class DeclarationTransformer {
 						integerIdentification, sanify, properties, values);
 	}
 
+    protected <T extends CSSProperty> boolean genericOneIdentOrIntegerOrNumber(
+            Class<T> type, T integerIdentification, T numberIdentification, boolean sanify,
+            Declaration d, Map<String, CSSProperty> properties,
+            Map<String, Term<?>> values) {
+
+        if (d.size() != 1)
+            return false;
+
+        return genericTermIdent(type, d.get(0), ALLOW_INH, d.getProperty(), properties)
+                || genericTerm(TermInteger.class, d.get(0), d.getProperty(),
+                        integerIdentification, sanify, properties, values)
+                || genericTerm(TermNumber.class, d.get(0), d.getProperty(),
+                        numberIdentification, sanify, properties, values);
+    }
+    
 	protected <T extends CSSProperty> boolean genericOneIdentOrLength(
 			Class<T> type, T lengthIdentification, boolean sanify,
 			Declaration d, Map<String, CSSProperty> properties,
@@ -555,6 +576,59 @@ public class DeclarationTransformer {
 				|| genericTerm(TermPercent.class, d.get(0), d.getProperty(),
 						percentIdentification, sanify, properties, values);
 	}
+
+    protected <T extends Enum<T> & CSSProperty> boolean genericTwoIdentsOrLengthsOrPercents(
+            Class<T> type, T listIdentification,
+            boolean sanify, Declaration d, Map<String, CSSProperty> properties,
+            Map<String, Term<?>> values) {
+
+        if (d.size() == 1) {
+            Term<?> term = d.get(0);
+            String propertyName = d.getProperty();
+            // is it identifier or length ?
+            if (genericTermIdent(type, term, ALLOW_INH, propertyName, properties)
+                || genericTermLength(term, propertyName,
+                        listIdentification, sanify, properties, values)
+                || genericTerm(TermPercent.class, term, propertyName,
+                        listIdentification, sanify, properties, values)) {
+                // one term with length was inserted, double it
+                if (properties.get(propertyName) == listIdentification) {
+                    TermList terms = tf.createList(2);
+                    terms.add(term);
+                    terms.add(term);
+                    values.put(propertyName, terms);
+                }
+                return true;
+            }
+            else
+                return false;
+        }
+        // two numerical values
+        else if (d.size() == 2) {
+            Term<?> term1 = d.get(0);
+            Term<?> term2 = d.get(1);
+            String propertyName = d.getProperty();
+            // two lengths ?
+            if ((genericTermLength(term1, propertyName,
+                            listIdentification, sanify, properties, values)
+                    || genericTerm(TermPercent.class, term1, propertyName,
+                            listIdentification, sanify, properties, values))
+                 && (genericTermLength(term2, propertyName,
+                            listIdentification, sanify, properties, values)
+                    || genericTerm(TermPercent.class, term2, propertyName,
+                            listIdentification, sanify, properties, values))) {
+                TermList terms = tf.createList(2);
+                terms.add(term1);
+                terms.add(term2);
+                values.put(propertyName, terms);
+                return true;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+    }
 
 	// =============================================================
 	// processing methods
@@ -704,7 +778,7 @@ public class DeclarationTransformer {
 			// is it identifier or length ?
 			if (genericTermIdent(BorderSpacing.class, term, ALLOW_INH,
 					propertyName, properties)
-					|| genericTerm(TermLength.class, term, propertyName,
+					|| genericTermLength(term, propertyName,
 							BorderSpacing.list_values, true, properties, values)) {
 				// one term with length was inserted, double it
 				if (properties.get(propertyName) == BorderSpacing.list_values) {
@@ -722,9 +796,9 @@ public class DeclarationTransformer {
 			Term<?> term2 = d.get(1);
 			String propertyName = d.getProperty();
 			// two lengths ?
-			if (genericTerm(TermLength.class, term1, propertyName,
+			if (genericTermLength(term1, propertyName,
 					BorderSpacing.list_values, true, properties, values)
-					&& genericTerm(TermLength.class, term2, propertyName,
+					&& genericTermLength(term2, propertyName,
 							BorderSpacing.list_values, true, properties, values)) {
 				TermList terms = tf.createList(2);
 				terms.add(term1);
@@ -826,6 +900,41 @@ public class DeclarationTransformer {
 		return borderSide.vary(properties, values);
 	}
 
+    @SuppressWarnings("unused")
+    private boolean processBorderTopLeftRadius(Declaration d,
+            Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+        return genericTwoIdentsOrLengthsOrPercents(BorderRadius.class,
+                BorderRadius.list_values, false, d, properties, values);
+    }
+	
+    @SuppressWarnings("unused")
+    private boolean processBorderTopRightRadius(Declaration d,
+            Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+        return genericTwoIdentsOrLengthsOrPercents(BorderRadius.class,
+                BorderRadius.list_values, false, d, properties, values);
+    }
+    
+    @SuppressWarnings("unused")
+    private boolean processBorderBottomRightRadius(Declaration d,
+            Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+        return genericTwoIdentsOrLengthsOrPercents(BorderRadius.class,
+                BorderRadius.list_values, false, d, properties, values);
+    }
+    
+    @SuppressWarnings("unused")
+    private boolean processBorderBottomLeftRadius(Declaration d,
+            Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+        return genericTwoIdentsOrLengthsOrPercents(BorderRadius.class,
+                BorderRadius.list_values, false, d, properties, values);
+    }
+    
+    @SuppressWarnings("unused")
+    private boolean processBorderRadius(Declaration d,
+            Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+        BorderRadiusRepeater radius = new BorderRadiusRepeater();
+        return radius.repeatOverMultiTermDeclaration(d, properties, values);
+    }
+	
 	/*
 	 * 
 	 * private Boolean processBorder(Declaration d) { NodeData trans =
@@ -1275,6 +1384,13 @@ public class DeclarationTransformer {
 				values);
 	}
 
+    @SuppressWarnings("unused")
+    private boolean processOpacity(Declaration d,
+            Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+        return genericOneIdentOrIntegerOrNumber(Opacity.class, Opacity.number, Opacity.number, false, d,
+                properties, values);
+    }
+
 	@SuppressWarnings("unused")
 	private boolean processOrphans(Declaration d,
 			Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
@@ -1706,7 +1822,7 @@ public class DeclarationTransformer {
 				// process width
 				return genericTermIdent(types.get(WIDTH), terms.get(i),
 						AVOID_INH, names.get(WIDTH), properties)
-						|| genericTerm(TermLength.class, terms.get(i), names
+						|| genericTermLength(terms.get(i), names
 								.get(WIDTH), BorderWidth.length, true,
 								properties, values);
 			default:
@@ -1765,7 +1881,7 @@ public class DeclarationTransformer {
 				// process width
 				return genericTermIdent(types.get(WIDTH), terms.get(i),
 						AVOID_INH, names.get(WIDTH), properties)
-						|| genericTerm(TermLength.class, terms.get(i), names
+						|| genericTermLength(terms.get(i), names
 								.get(WIDTH), OutlineWidth.length, true,
 								properties, values);
 			default:
@@ -1875,7 +1991,7 @@ public class DeclarationTransformer {
 			case SIZE:
 				return genericTermIdent(types.get(SIZE), terms.get(i),
 						AVOID_INH, names.get(SIZE), properties)
-						|| genericTerm(TermLength.class, terms.get(i), names
+						|| genericTermLength(terms.get(i), names
 								.get(SIZE), FontSize.length, true, properties,
 								values)
 						|| genericTerm(TermPercent.class, terms.get(i), names
@@ -2365,12 +2481,160 @@ public class DeclarationTransformer {
 
 			return genericTermIdent(type, terms.get(i), AVOID_INH,
 					names.get(i), properties)
-					|| genericTerm(TermLength.class, terms.get(i),
+					|| genericTermLength(terms.get(i),
 							names.get(i), BorderWidth.length, true, properties,
 							values);
 		}
 	}
 
+    /**
+     * Border radius repeater
+     * 
+     * @author burgetr
+     * 
+     */
+    private final class BorderRadiusRepeater extends Repeater {
+
+        public BorderRadiusRepeater() {
+            super(4);
+            this.type = BorderRadius.class;
+            names.add("border-top-left-radius");
+            names.add("border-top-right-radius");
+            names.add("border-bottom-right-radius");
+            names.add("border-bottom-left-radius");
+        }
+
+        @Override
+        protected boolean operation(int i, Map<String, CSSProperty> properties,
+                Map<String, Term<?>> values) {
+
+            Term<?> term = terms.get(i);
+            String name = names.get(i);
+            
+            if (genericTermIdent(type, terms.get(i), AVOID_INH, names.get(i), properties))
+            {
+                return true;
+            }       
+            else if (term instanceof TermList)
+            {
+                properties.put(name, BorderRadius.list_values);
+                values.put(name, term);
+                return true;
+            }
+            else
+                return false;
+        }
+        
+        /** Decodes the complicated border-radius declaration into four term pairs */
+        public boolean repeatOverMultiTermDeclaration(Declaration d,
+                Map<String, CSSProperty> properties, Map<String, Term<?>> values)
+                throws IllegalArgumentException {
+
+            if (d.size() == 1) //one value - check for inherit
+            {
+                Term<?> term = d.get(0);
+                if(term instanceof TermIdent && CSSProperty.INHERIT_KEYWORD.equalsIgnoreCase(((TermIdent) term).getValue())) {
+                    CSSProperty property = CSSProperty.Translator.createInherit(type);
+                    for(int i = 0; i < times; i++) {
+                        properties.put(names.get(i), property);
+                    }
+                    return true;
+                }
+            }
+            
+            //find the slash (if any)
+            int slash = -1;
+            for (int i = 0; i < d.size(); i++)
+            {
+                Term<?> term = d.get(i);
+                if (term.getOperator() == Operator.SLASH)
+                {
+                    slash = i;
+                    break;
+                }
+            }
+            if (slash == -1)
+            {
+                Term<?>[] sterms = createFourTerms(d, 0, d.size());
+                for (int i = 0; i < 4; i++)
+                {
+                    TermList list = tf.createList(2);
+                    list.add(sterms[i]);
+                    list.add(sterms[i]);
+                    terms.add(list);
+                }
+            }
+            else
+            {
+                Term<?>[] sterms1 = createFourTerms(d, 0, slash);
+                Term<?>[] sterms2 = createFourTerms(d, slash, d.size());
+                for (int i = 0; i < 4; i++)
+                {
+                    TermList list = tf.createList(2);
+                    list.add(sterms1[i]);
+                    list.add(sterms2[i]);
+                    terms.add(list);
+                }
+            }
+            return repeat(properties, values);
+        }
+        
+        private Term<?>[] createFourTerms(Declaration d, int fromIndex, int toIndex)
+                throws IllegalArgumentException
+        {
+            int size = toIndex - fromIndex;
+            Term<?>[] ret = new Term<?>[4];
+            switch (size) {
+            case 1:
+                // one term for all value
+                ret[0] = ret[1] = ret[2] = ret[3] = d.get(fromIndex); 
+                break;
+            case 2:
+                ret[0] = ret[2] = d.get(fromIndex);
+                ret[1] = ret[3] = d.get(fromIndex + 1);
+                break;
+            case 3:
+                ret[0] = d.get(fromIndex);
+                ret[1] = ret[3] = d.get(fromIndex+1);
+                ret[2] = d.get(fromIndex+2);
+                break;
+            case 4:
+                for (int i = 0; i < 4; i++)
+                    ret[i] = d.get(fromIndex + i);
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid length of terms in Repeater.");
+            }
+            
+            //when started by a slash, remove the slash from the terms
+            if (fromIndex != 0)
+            {
+                for (int i = 0; i < 4; i++)
+                    if (ret[i].getOperator() == Operator.SLASH)
+                        ret[i] = stripSlash(ret[i]);
+            }
+            
+            return ret;
+        }
+        
+        private Term<?> stripSlash(Term<?> src)
+        {
+            if (src.getOperator() == Operator.SLASH)
+            {
+                if (src instanceof TermLength)
+                    return tf.createLength((Float) src.getValue(), ((TermLength) src).getUnit());
+                else if (src instanceof TermPercent)
+                    return tf.createPercent((Float) src.getValue());
+                else
+                    return src;
+            }
+            else
+                return src;
+        }
+        
+    }
+    
 	/**
 	 * Margin repeater
 	 * 
@@ -2395,7 +2659,7 @@ public class DeclarationTransformer {
 
 			return genericTermIdent(type, terms.get(i), AVOID_INH,
 					names.get(i), properties)
-					|| genericTerm(TermLength.class, terms.get(i),
+					|| genericTermLength(terms.get(i),
 							names.get(i), Margin.length, false, properties,
 							values)
 					|| genericTerm(TermPercent.class, terms.get(i), names
@@ -2427,7 +2691,7 @@ public class DeclarationTransformer {
 
 			return genericTermIdent(type, terms.get(i), AVOID_INH,
 					names.get(i), properties)
-					|| genericTerm(TermLength.class, terms.get(i),
+					|| genericTermLength(terms.get(i),
 							names.get(i), Padding.length, false, properties,
 							values)
 					|| genericTerm(TermPercent.class, terms.get(i), names
@@ -2467,7 +2731,7 @@ public class DeclarationTransformer {
 				properties.put(names.get(i), clip);
 				return true;
 			} else
-				return genericTerm(TermLength.class, terms.get(i),
+				return genericTermLength(terms.get(i),
 						names.get(i), Clip.rect, false, properties, values);
 		}
 	}
