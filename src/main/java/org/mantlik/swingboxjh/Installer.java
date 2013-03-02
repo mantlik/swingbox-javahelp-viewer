@@ -21,6 +21,7 @@
  */
 package org.mantlik.swingboxjh;
 
+import cz.vutbr.web.css.CSSFactory;
 import javax.swing.UIManager;
 import org.openide.modules.ModuleInstall;
 
@@ -32,6 +33,8 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
+        // Suppose length without unit to be in px
+        CSSFactory.setImplyPixelLength(true);
         UIManager.getLookAndFeelDefaults().put("HelpContentViewerUI", "org.mantlik.swingboxjh.SwingboxContentViewerUI");
         UIManager.put("HelpContentViewerUI", "org.mantlik.swingboxjh.SwingboxContentViewerUI");
     }
