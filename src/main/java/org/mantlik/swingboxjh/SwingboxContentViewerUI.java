@@ -23,7 +23,9 @@ package org.mantlik.swingboxjh;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -50,12 +52,15 @@ import javax.help.event.HelpModelListener;
 import javax.help.event.TextHelpModelEvent;
 import javax.help.event.TextHelpModelListener;
 import javax.help.plaf.HelpContentViewerUI;
-import javax.help.plaf.basic.BasicNativeContentViewerUI;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.BadLocationException;
@@ -67,6 +72,9 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import org.fit.cssbox.swingbox.BrowserPane;
 import org.openide.util.Exceptions;
+import org.openide.windows.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Javahelp component viewer based on SwingBox viewer
@@ -77,8 +85,9 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         implements HelpModelListener, TextHelpModelListener, PropertyChangeListener,
         Serializable {
 
-    protected JHelpContentViewer theViewer;
-    private static Dimension PREF_SIZE = new Dimension(200, 300);
+    private static Logger log = LoggerFactory.getLogger(SwingboxContentViewerUI.class);
+    protected JHelpContentViewer theViewer = null;
+    private static Dimension PREF_SIZE = new Dimension(100, 100);
     private static Dimension MIN_SIZE = new Dimension(80, 80);
     private static final HighlightPainter HIGHLIGHT_PAINTER = new DefaultHighlightPainter(Color.ORANGE);
     private static final String A_XERCES_CLASS_NAME = "org.apache.xerces.parsers.DOMParser";
@@ -86,28 +95,31 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     private JViewport vp;
     private transient HelpBrowserHyperlinkHandler hyperlinkListener;
     private String textDocument;
+    private Component scroller;
+    private LayoutManager layout;
 
     public static ComponentUI createUI(JComponent x) {
-        debug("createUI");
-        if (! (x instanceof JHelpContentViewer)) {
+        debug("create UI");
+        if (!(x instanceof JHelpContentViewer)) {
             throw new ClassCastException("Invalid argument of type " + x.getClass().getName() + ". Expected JHelpContentViewer.");
         } else {
-            return new BasicNativeContentViewerUI((JHelpContentViewer) x);
+            return new SwingboxContentViewerUI((JHelpContentViewer) x);
         }
     }
 
     public SwingboxContentViewerUI(JHelpContentViewer b) {
-        debug("createUI - sort of");
+        debug("create UI instance");
     }
 
     @Override
     public void installUI(JComponent c) {
         debug("installUI");
-        if (! (c instanceof JHelpContentViewer)) {
+        if (!(c instanceof JHelpContentViewer)) {
             throw new ClassCastException("Invalid argument of type " + c.getClass().getName() + ". Expected JHelpContentViewer.");
         } else {
             theViewer = (JHelpContentViewer) c;
         }
+        layout = theViewer.getLayout();
         theViewer.setLayout(new BorderLayout());
 
         // listen to property changes...
@@ -146,9 +158,6 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         Rectangle bounds = html.getBounds();
         bounds.setSize(c.getWidth(), c.getHeight());
         html.setBounds(bounds);
-        if (debug) {
-            //html.setDebug(true);
-        }
         /**
          * html future additions
          * add any listeners here
@@ -169,25 +178,30 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             }
         }
 
-        JScrollPane scroller = new JScrollPane();
-        scroller.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.white,
+        JScrollPane ascroller = new JScrollPane();
+        ascroller.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.white,
                 Color.gray));
-        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        vp = scroller.getViewport();
+        ascroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        ascroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        vp = ascroller.getViewport();
         vp.add(html);
-        vp.setBackingStoreEnabled(true);
-        theViewer.add("Center", scroller);
+        vp.setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+        theViewer.add(ascroller, "Center");
+        scroller = ascroller;
     }
 
     @Override
     public void uninstallUI(JComponent c) {
         debug("uninstallUI");
         JHelpContentViewer viewer = null;
-        if (! (c instanceof JHelpContentViewer)) {
+        if (!(c instanceof JHelpContentViewer)) {
             throw new ClassCastException("Invalid argument of type " + c.getClass().getName() + ". Expected JHelpContentViewer.");
         } else {
             viewer = (JHelpContentViewer) c;
+        }
+        if (!theViewer.equals(viewer)) {
+            log.warn("Attempt to uninstall UI from incorrect viewer.");
+            return;
         }
         viewer.removePropertyChangeListener(this);
         /**
@@ -202,8 +216,9 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
             model.removeHelpModelListener(this);
             model.removeTextHelpModelListener(this);
         }
-        viewer.setLayout(null);
-        viewer.removeAll();
+        viewer.setLayout(layout);
+        viewer.remove(scroller);
+        theViewer = null;
     }
 
     @Override
@@ -282,7 +297,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
     public void propertyChange(PropertyChangeEvent event) {
         debug("propertyChange: " + event.getPropertyName() + "\n\toldValue:" + event.getOldValue() + "\n\tnewValue:" + event.getNewValue());
 
-        if (event.getSource() == theViewer) {
+        if (event.getSource().equals(theViewer)) {
             String changeName = event.getPropertyName();
             if (changeName.equals("helpModel")) {
                 TextHelpModel oldModel = (TextHelpModel) event.getOldValue();
@@ -361,15 +376,12 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
         html.setPage(url);
         highlightsChanged(null);
     }
+
     /**
      * For printf debugging.
      */
-    private final static boolean debug = false;
-
     private static void debug(String str) {
-        if (debug) {
-            System.out.println("NativeContentViewerUI: " + str);
-        }
+        log.debug(str);
     }
 
     /*
