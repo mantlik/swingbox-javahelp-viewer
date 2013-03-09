@@ -265,7 +265,7 @@ public class TextBoxView extends View implements CSSBoxView
     @Override
     public AttributeSet getAttributes()
     {
-        if (refreshAttributes)
+        if (refreshAttributes || attributes == null)
         {
             attributes = createAttributes();
             refreshAttributes = false;
