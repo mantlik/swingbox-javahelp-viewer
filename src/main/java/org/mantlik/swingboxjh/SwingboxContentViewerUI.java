@@ -143,11 +143,7 @@ public class SwingboxContentViewerUI extends HelpContentViewerUI
                             Class cl = loader.forceLoader(BrowserPane.class.getName());
                             html = (JEditorPane) cl.newInstance();
                             return loader;
-                        } catch (InstantiationException ex) {
-                            Exceptions.printStackTrace(ex);
-                        } catch (IllegalAccessException ex) {
-                            Exceptions.printStackTrace(ex);
-                        } catch (ClassNotFoundException ex) {
+                        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
                             Exceptions.printStackTrace(ex);
                         }
                         return null;
