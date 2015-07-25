@@ -244,7 +244,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <commitByProject>false</commitByProject>
                     <developmentVersion>1.2-SNAPSHOT</developmentVersion>
-                    <releaseVersion>1.1.2</releaseVersion>
+                    <releaseVersion>1.1.3</releaseVersion>
                     <tagNameFormat>RELEASE_@{project.version}</tagNameFormat>
                     <scmCommentPrefix>Update Issue 6 </scmCommentPrefix>
                 </configuration>
