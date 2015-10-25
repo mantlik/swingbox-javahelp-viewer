@@ -2,9 +2,6 @@ Swingbox-javahelp-viewer plugin can be installed into a Netbeans RCP application
 
 When help window is first open in a Netbeans RCP application, a content viewer component based on Swingbox BrowserPane is created and replaces original Javahelp content viewer. All following Javahelp requests are handled by the new component.
 
-**On this page:**
-
-
 # Features #
 
   * Swingbox viewer is based on [CSSBox](http://cssbox.sourceforge.net) rendering engine.It serves more advanced rendering capabilities than built-in Javahelp viewer
@@ -15,7 +12,7 @@ When help window is first open in a Netbeans RCP application, a content viewer c
 
 # Screenshot #
 
-[![](http://github.com/mantlik/swingbox-javahelp-viewer/blob/wiki/screenshot_swingbox_javahelp_small.png?raw=true)](https://github.com/mantlik/swingbox-javahelp-viewer/wiki/ScreenshotPage)
+[![](https://github.com/mantlik/swingbox-javahelp-viewer/blob/wiki/screenshot_swingbox_javahelp_small.png?raw=true)](https://github.com/mantlik/swingbox-javahelp-viewer/wiki/ScreenshotPage)
 
 Netbeans IDE help with swingbox-javahelp-viewer plugin installed. Presentation of highlighted search results.
 
