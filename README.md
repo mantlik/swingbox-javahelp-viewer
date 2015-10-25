@@ -15,7 +15,7 @@ When help window is first open in a Netbeans RCP application, a content viewer c
 
 # Screenshot #
 
-[![](http://wiki.swingbox-javahelp-viewer.googlecode.com/git/screenshot_swingbox_javahelp_small.png)](https://code.google.com/p/swingbox-javahelp-viewer/wiki/ScreenshotPage)
+[![](http://github.com/mantlik/swingbox-javahelp-viewer/blob/wiki/screenshot_swingbox_javahelp_small.png?raw=true)](https://github.com/mantlik/swingbox-javahelp-viewer/wiki/ScreenshotPage)
 
 Netbeans IDE help with swingbox-javahelp-viewer plugin installed. Presentation of highlighted search results.
 
@@ -59,7 +59,7 @@ Application has to provide XercesImpl 2.8.0 or newer. Plugin will not work if xe
         </dependency>
 ```
 
-[Release history](ReleaseHistory.md)
+[Release history](ReleaseHistory)
 
 # Limitations #
 
@@ -69,9 +69,9 @@ Application has to provide XercesImpl 2.8.0 or newer. Plugin will not work if xe
 
 # Feedback #
 
-Any feedback is welcome at the [Issue Tracking page](https://code.google.com/p/swingbox-javahelp-viewer/issues/list).
+Any feedback is welcome at the [Issue Tracking page](https://github.com/mantlik/swingbox-javahelp-viewer/issues).
 
-Developers are encouraged to checkout or clone the [Git Repository](https://code.google.com/p/swingbox-javahelp-viewer/source/checkout) and submit their patches/improvements.
+Developers are encouraged to checkout or clone the [Git Repository](https://github.com/mantlik/swingbox-javahelp-viewer) and submit their patches/improvements.
 
 # References #
 
