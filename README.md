@@ -56,7 +56,7 @@ Application has to provide XercesImpl 2.8.0 or newer. Plugin will not work if xe
         </dependency>
 ```
 
-[Release history](ReleaseHistory)
+[Release history](https://github.com/mantlik/swingbox-javahelp-viewer/wiki/ReleaseHistory)
 
 # Limitations #
 
