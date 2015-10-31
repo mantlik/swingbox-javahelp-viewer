@@ -48,8 +48,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:https://code.google.com/p/swingbox-javahelp-viewer/</connection>
-        <developerConnection>scm:git:https://code.google.com/p/swingbox-javahelp-viewer/</developerConnection>
+        <connection>scm:git:git@github.com:mantlik/swingbox-javahelp-viewer/</connection>
+        <developerConnection>scm:git:git@github.com:mantlik/swingbox-javahelp-viewer/</developerConnection>
       <tag>HEAD</tag>
   </scm>
 
