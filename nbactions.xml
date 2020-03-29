@@ -1,20 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
     <action>
-        <actionName>CUSTOM-upload</actionName>
-        <displayName>upload</displayName>
-        <goals>
-            <goal>clean</goal>
-            <goal>install</goal>
-            <goal>gcu:upload</goal>
-        </goals>
-    </action>
-    <action>
         <actionName>CUSTOM-deploy</actionName>
         <displayName>deploy</displayName>
         <goals>
             <goal>clean</goal>
-            <goal>install</goal>
             <goal>deploy</goal>
         </goals>
     </action>
@@ -48,6 +38,30 @@
         <goals>
             <goal>-B</goal>
             <goal>release:rollback</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-Display dependency updates</actionName>
+        <displayName>Display dependency updates</displayName>
+        <goals>
+            <goal>-B</goal>
+            <goal>versions:display-dependency-updates</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-Display plugin updates</actionName>
+        <displayName>Display plugin updates</displayName>
+        <goals>
+            <goal>-B</goal>
+            <goal>versions:display-plugin-updates</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-Display property updates</actionName>
+        <displayName>Display property updates</displayName>
+        <goals>
+            <goal>-B</goal>
+            <goal>versions:display-property-updates</goal>
         </goals>
     </action>
 </actions>
