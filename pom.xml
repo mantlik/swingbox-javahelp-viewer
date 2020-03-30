@@ -53,8 +53,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:mantlik/swingbox-javahelp-viewer/</connection>
-        <developerConnection>scm:git:git@github.com:mantlik/swingbox-javahelp-viewer/</developerConnection>
+        <connection>scm:git:ssh://github.com/mantlik/swingbox-javahelp-viewer</connection>
+        <developerConnection>scm:git:ssh://github.com/mantlik/swingbox-javahelp-viewer</developerConnection>
       <tag>HEAD</tag>
   </scm>
 
