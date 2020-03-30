@@ -43,7 +43,7 @@
     <distributionManagement>
         <repository>
             <id>releases</id>
-            <url>http://host.mantlik.cz/nexus3/repository/maven-public/</url>
+            <url>http://host.mantlik.cz/nexus3/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
